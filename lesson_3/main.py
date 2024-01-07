@@ -21,9 +21,10 @@ async def command_start_handler(message: types.Message) -> None:
 
 @dp.message()
 async def check_sticker(message: types.Sticker):
-    await message.reply(message.sticker.file_id)
-    chat = await bot.get_chat(message.chat.id)
-    await bot.send_message(message.from_user.id, str(chat))
+    sticker_id = message.sticker.file_id
+    group_id = message.chat.id
+    await message.reply(sticker_id)
+    await bot.send_message(message.from_user.id, str(group_id))
 
 
 @dp.message()
