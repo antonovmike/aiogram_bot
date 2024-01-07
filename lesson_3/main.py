@@ -19,12 +19,17 @@ async def command_start_handler(message: types.Message) -> None:
     await message.answer(f'Hello {message.from_user.full_name}')
 
 
+# @dp.message()
+# async def check_sticker(message: types.Sticker):
+#     sticker_id = message.sticker.file_id
+#     group_id = message.chat.id
+#     await message.reply(sticker_id)
+#     await bot.send_message(message.from_user.id, str(group_id))
+
+
 @dp.message()
-async def check_sticker(message: types.Sticker):
-    sticker_id = message.sticker.file_id
-    group_id = message.chat.id
-    await message.reply(sticker_id)
-    await bot.send_message(message.from_user.id, str(group_id))
+async def forward_message(message: types.Message):
+    await bot.forward_message(-4099587242, message.from_user.id, message.message_id)
 
 
 @dp.message()
