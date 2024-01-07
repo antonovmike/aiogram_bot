@@ -15,12 +15,20 @@ dp = Dispatcher(bot=bot)
 
 @dp.message(CommandStart())
 async def command_start_handler(message: types.Message) -> None:
+    await message.answer_sticker('CAACAgIAAxkBAAIUSWWalI3UK4cUW2s25m49M2WlW6SZAAI7AQACijc4AAGSEIzViMEnBDQE')
     await message.answer(f'Hello {message.from_user.full_name}')
 
 
 @dp.message()
+async def check_sticker(message: types.Sticker):
+    await message.reply(message.sticker.file_id)
+    chat = await bot.get_chat(message.chat.id)
+    await bot.send_message(message.from_user.id, str(chat))
+
+
+@dp.message()
 async def answer(message: types.Message) -> None:
-    await message.reply(f'Don\'t understand')
+    await message.reply(f'Don\'t understand you')
 
 
 if __name__ == "__main__":
