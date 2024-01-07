@@ -23,8 +23,19 @@ kb = ReplyKeyboardMarkup(keyboard=[raw_1, raw_2], resize_keyboard=True)
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    await message.answer_sticker('CAACAgIAAxkBAAIUSWWalI3UK4cUW2s25m49M2WlW6SZAAI7AQACijc4AAGSEIzViMEnBDQE')
+    sticker_id = 'CAACAgIAAxkBAAIUSWWalI3UK4cUW2s25m49M2WlW6SZAAI7AQACijc4AAGSEIzViMEnBDQE'
+    await message.answer_sticker(sticker_id)
     await message.answer(f'Hello {message.from_user.full_name}', reply_markup=kb)
+
+
+@dp.message()
+async def buttons_click(message: Message):
+    if message.text == 'Catalogue':
+        await message.answer(f'Here is our Catalogue')
+    elif message.text == 'Card':
+        await message.answer(f'Added to card')
+    elif message.text == 'Contacts':
+        await message.answer(f'Buy here: @no_user')
 
 
 @dp.message()
