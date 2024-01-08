@@ -34,9 +34,10 @@ kb_admin = ReplyKeyboardMarkup(keyboard=[raw_1], resize_keyboard=True)
 async def command_start_handler(message: Message) -> None:
     sticker_id = os.getenv('STICKER_ID')
     await message.answer_sticker(sticker_id)
-    await message.answer(f'Hello {message.from_user.full_name}', reply_markup=kb)
-    if str(message.from_user.id) == os.getenv('ADMIN_ID'):
-        await message.answer(f'you are logged in as an administrator', reply_markup=kb_add)
+    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await message.answer(f'You are logged in as an administrator', reply_markup=kb_add)
+    else:
+        await message.answer(f'Hello {message.from_user.full_name}', reply_markup=kb)
 
 
 @dp.message()
@@ -47,20 +48,12 @@ async def buttons_click(message: Message):
         await message.answer(f'Added to card')
     elif message.text == 'Contacts':
         await message.answer(f'Buy here: @no_user')
-    elif message.text == 'Admin keyboard':
-        await message.answer(f'You have opened the admin keyboard')
-    if message.text == 'id':
+    elif message.from_user.id == int(os.getenv('ADMIN_ID')) and message.text == 'Admin keyboard':
+        await message.answer(f'You have opened the admin keyboard', reply_markup=kb_admin)
+    elif message.text == 'id':
         await message.answer(f'{message.from_user.id}')
-
-
-@dp.message()
-async def forward_message(message: Message):
-    await bot.forward_message(os.getenv('GROUP_ID'), message.from_user.id, message.message_id)
-
-
-@dp.message()
-async def answer(message: Message) -> None:
-    await message.reply(f'Don\'t understand you')
+    else:
+        await message.reply(f'Don\'t understand you')
 
 
 if __name__ == "__main__":
