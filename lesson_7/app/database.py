@@ -1,0 +1,27 @@
+import sqlite3 as sq
+
+
+db = sq.connect('tg.sqlite')
+cur = db.cursor()
+
+
+# async def db_start():
+#     with open('tg.sqlite', 'r') as file:
+#         sql_commands = file.read().split(';')
+#         for command in sql_commands:
+#             cur.execute(command)
+#         db.commit()
+
+# Does not work. Check it
+async def db_start():
+    cur.execute("CREATE TABLE IF NOT EXISTS accounts("
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "cart_id TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS items("
+                "i_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "name TEXT, "
+                "desc TEXT, "
+                "price TEXT, "
+                "photo TEXT, "
+                "brand TEXT)")
+    db.commit()
