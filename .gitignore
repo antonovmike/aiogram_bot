@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 .env
+*.sqlite
 
 # C extensions
 *.so
