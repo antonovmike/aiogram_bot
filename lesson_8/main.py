@@ -89,9 +89,18 @@ async def add_goods(message: Message, state: FSMContext) -> None:
         await message.reply('I don\'t understand you')
 
 
+@dp.callback_query(NewOrder.type)
+async def add_item_type(call: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    data['type'] = call.data
+    await call.message.answer('Type goods name', reply_markup=kb.cancel)
+    await state.set_state(NewOrder.name)
+
+
 @router.message(CommandFilter("/delete"))
 async def delete_goods(message: Message, state: FSMContext) -> None:
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        # await NewOrder.type.set()
         await state.set_state(NewOrder.type)
         await message.answer('Delete goods', reply_markup=kb.catalog_list)
     else:
