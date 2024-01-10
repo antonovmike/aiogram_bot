@@ -46,6 +46,53 @@ async def contacts(message: Message) -> None:
     await message.answer(f'Buy here: @no_user')
 
 
+@router.message(CommandFilter("/kbrd"))
+async def regular_kbrd(message: Message) -> None:
+    if check_admin(message):
+        await message.answer(f'You have opened the regular keyboard', reply_markup=kb.kb_add)
+    else:
+        await message.answer(f'You have opened the regular keyboard', reply_markup=kb.kb_user)
+
+
+@router.message(CommandFilter("/admin"))
+async def admin_kbrd(message: Message) -> None:
+    if check_admin(message):
+        await message.answer(f'You have opened the admin keyboard', reply_markup=kb.kb_admin)
+    else:
+        await message.answer("You are not administrator")
+
+
+def check_admin(message: Message) -> bool:
+    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        return True
+
+
+@router.message(CommandFilter("/id"))
+async def get_user_id(message: Message) -> None:
+    await message.answer(f'{message.from_user.id}')
+
+
+@router.message(CommandFilter("/add"))
+async def add_goods(message: Message) -> None:
+    # await NewOrder.type
+    await message.answer('Add goods')
+
+
+@router.message(CommandFilter("/delete"))
+async def delete_goods(message: Message) -> None:
+    await message.answer('Delete goods')
+
+
+@router.message(CommandFilter("/mail"))
+async def mail_campaign(message: Message) -> None:
+    await message.answer('Mail campaign')
+
+
+@router.message()
+async def dont_understand(message: Message) -> None:
+    await message.answer('I don\'t understand you')
+
+
 async def on_startup():
     await db.db_start()
     print('DB connected')
@@ -68,19 +115,6 @@ async def command_start_handler(message: Message) -> None:
         await message.answer(f'You are logged in as an administrator', reply_markup=kb.kb_add)
     else:
         await message.answer(f'Hello {message.from_user.full_name}', reply_markup=kb.kb_user)
-
-
-# @dp.message()
-# async def buttons_click(message: Message):
-#     elif message.from_user.id == int(os.getenv('ADMIN_ID')) and message.text == 'Admin keyboard':
-#         await message.answer(f'You have opened the admin keyboard', reply_markup=kb.kb_admin)
-#     elif message.text == 'id':
-#         await message.answer(f'{message.from_user.id}')
-#     elif message.text == 'Add goods':
-#         await NewOrder.type.set()
-#         await message.answer(f'Choose type', reply_markup=kb.catalog_list)
-#     else:
-#         await message.reply(f'Don\'t understand you')
 
 
 # @dp.callback_query(state=NewOrder.type)
