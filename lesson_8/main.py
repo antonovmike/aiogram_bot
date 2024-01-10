@@ -31,6 +31,14 @@ class CommandFilter(Filter):
         return len(text) > 0 and command == f'{self.command}'
 
 
+class NewOrder(StatesGroup):
+    type = State()
+    name = State()
+    desc = State()
+    price = State()
+    photo = State()
+
+
 @router.message(CommandFilter("/card"))
 async def card(message: Message) -> None:
     await message.answer('Added to card')
@@ -73,14 +81,21 @@ async def get_user_id(message: Message) -> None:
 
 
 @router.message(CommandFilter("/add"))
-async def add_goods(message: Message) -> None:
-    # await NewOrder.type
-    await message.answer('Add goods')
+async def add_goods(message: Message, state: FSMContext) -> None:
+    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await state.set_state(NewOrder.type)
+        await message.answer('Add goods', reply_markup=kb.catalog_list)
+    else:
+        await message.reply('I don\'t understand you')
 
 
 @router.message(CommandFilter("/delete"))
-async def delete_goods(message: Message) -> None:
-    await message.answer('Delete goods')
+async def delete_goods(message: Message, state: FSMContext) -> None:
+    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await state.set_state(NewOrder.type)
+        await message.answer('Delete goods', reply_markup=kb.catalog_list)
+    else:
+        await message.reply('I don\'t understand you')
 
 
 @router.message(CommandFilter("/mail"))
@@ -98,14 +113,6 @@ async def on_startup():
     print('DB connected')
 
 
-class NewOrder(StatesGroup):
-    type = State()
-    name = State()
-    desc = State()
-    price = State()
-    photo = State()
-
-
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await db.cmd_start_db(message.from_user.id)
@@ -115,11 +122,6 @@ async def command_start_handler(message: Message) -> None:
         await message.answer(f'You are logged in as an administrator', reply_markup=kb.kb_add)
     else:
         await message.answer(f'Hello {message.from_user.full_name}', reply_markup=kb.kb_user)
-
-
-# @dp.callback_query(state=NewOrder.type)
-# async def add_item_type():
-#     pass
 
 
 @dp.callback_query()
