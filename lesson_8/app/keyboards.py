@@ -18,8 +18,8 @@ raw_3 = [button_5, button_6, button_7]
 
 kb_admin = ReplyKeyboardMarkup(keyboard=[raw_3], resize_keyboard=True)
 
-inline_button_1 = InlineKeyboardButton(text='Shirts', callback_data='t-shirt')
-inline_button_2 = InlineKeyboardButton(text='T-Shirts', callback_data='shorts')
+inline_button_1 = InlineKeyboardButton(text='Shirts', callback_data='shirt')
+inline_button_2 = InlineKeyboardButton(text='T-Shirts', callback_data='t-shirt')
 inline_button_3 = InlineKeyboardButton(text='Sneakers', callback_data='sneakers')
 inline_raw_1 = [inline_button_1, inline_button_2]
 inline_raw_2 = [inline_button_3]

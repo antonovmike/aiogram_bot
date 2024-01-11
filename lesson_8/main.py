@@ -5,9 +5,9 @@ import os
 
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart, Filter
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message, CallbackQuery
 from dotenv import load_dotenv
 
@@ -17,7 +17,8 @@ from app import keyboards as kb
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 bot = Bot(TOKEN)
-dp = Dispatcher(bot=bot)
+storage = MemoryStorage()
+dp = Dispatcher(bot=bot, storage=storage)
 router = Router()
 
 
@@ -83,24 +84,63 @@ async def get_user_id(message: Message) -> None:
 @router.message(CommandFilter("/add"))
 async def add_goods(message: Message, state: FSMContext) -> None:
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
+        await message.answer('Add product', reply_markup=kb.catalog_list)
         await state.set_state(NewOrder.type)
-        await message.answer('Add goods', reply_markup=kb.catalog_list)
     else:
         await message.reply('I don\'t understand you')
 
 
 @dp.callback_query(NewOrder.type)
 async def add_item_type(call: CallbackQuery, state: FSMContext):
+    await call.message.answer(f'Product category {call.data}')
     data = await state.get_data()
     data['type'] = call.data
-    await call.message.answer('Type goods name', reply_markup=kb.cancel)
+    print('----type----', data['type'])
+    await call.message.answer('Enter product name', reply_markup=kb.cancel)
     await state.set_state(NewOrder.name)
+
+
+@dp.message(NewOrder.name)
+async def add_item_name(message: Message, state: FSMContext):
+    data = await state.get_data()
+    data['name'] = message.text
+    print('----name----', data['name'])
+    await message.answer('Enter product description', reply_markup=kb.cancel)
+    await state.set_state(NewOrder.desc)
+
+
+@dp.message(NewOrder.desc)
+async def add_item_desc(message: Message, state: FSMContext):
+    data = await state.get_data()
+    data['desc'] = message.text
+    print('----desc----', data['desc'])
+    await message.answer('Enter product price', reply_markup=kb.cancel)
+    await state.set_state(NewOrder.price)
+
+
+@dp.message(NewOrder.price)
+async def add_item_price(message: Message, state: FSMContext):
+    data = await state.get_data()
+    data['price'] = message.text
+    print('----price---', data['price'])
+    await message.answer('Upload product photo', reply_markup=kb.cancel)
+    await state.set_state(NewOrder.photo)
+
+
+@dp.callback_query(NewOrder.photo)
+async def add_item_photo(message: Message, state: FSMContext):
+    data = await state.get_data()
+    data['photo'] = message.photo[0].file_id
+    print('====data====', data)
+    print('----photo---', data['photo'])
+    await db.add_item(state)
+    await message.answer('Goods added successfully', reply_markup=kb.kb_admin)
+    await state.clear()
 
 
 @router.message(CommandFilter("/delete"))
 async def delete_goods(message: Message, state: FSMContext) -> None:
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
-        # await NewOrder.type.set()
         await state.set_state(NewOrder.type)
         await message.answer('Delete goods', reply_markup=kb.catalog_list)
     else:
