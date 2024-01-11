@@ -5,14 +5,6 @@ db = sq.connect('tg.sqlite')
 cur = db.cursor()
 
 
-# async def db_start():
-#     with open('tg.sqlite', 'r') as file:
-#         sql_commands = file.read().split(';')
-#         for command in sql_commands:
-#             cur.execute(command)
-#         db.commit()
-
-
 async def db_start():
     cur.execute("CREATE TABLE IF NOT EXISTS accounts("
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -20,11 +12,11 @@ async def db_start():
                 "cart_id TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS items("
                 "i_id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                "type TEXT, "
                 "name TEXT, "
                 "desc TEXT, "
                 "price TEXT, "
-                "photo TEXT, "
-                "brand TEXT)")
+                "photo TEXT)")
     db.commit()
 
 
@@ -36,7 +28,12 @@ async def cmd_start_db(user_id):
 
 
 async def add_item(state):
-    async with state.proxy() as data:
-        cur.execute("INSERT INTO items (name, desc, price, photo, brand) VALUES (?, ?, ?, ?, ?)",
-                    (data['name'], data['desc'], data['price'], data['photo'], data['type']))
-        db.commit()
+    data = await state.get_data()
+    print('DATA', data)
+    cur.execute("INSERT INTO items (type, name, desc, price, photo) VALUES (?, ?, ?, ?, ?)",
+                (data['type'], data['name'], data['desc'], data['price'], data['photo']))
+    db.commit()
+    # await with state.proxy() as data:
+    #     cur.execute("INSERT INTO items (name, desc, price, photo, brand) VALUES (?, ?, ?, ?, ?)",
+    #                 (data['name'], data['desc'], data['price'], data['photo'], data['type']))
+    #     db.commit()

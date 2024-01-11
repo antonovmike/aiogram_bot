@@ -1,10 +1,6 @@
-import asyncio
-import logging
-import sys
 import os
 
 from aiogram import Bot, Dispatcher, Router
-from aiogram.enums import ContentType
 from aiogram.filters import CommandStart, Filter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -37,8 +33,8 @@ class CommandFilter(Filter):
         if text:
             command = f'/{text[0].lower()}'
         else:
-            text = '/picture'
-            command = '/picture'
+            text = '/photo'
+            command = '/photo'
         return len(text) > 0 and command == f'{self.command}'
 
 
@@ -105,8 +101,8 @@ async def add_item_type(call: CallbackQuery, state: FSMContext):
     await call.message.answer(f'Product category {call.data}')
     data = await state.get_data()
     data['type'] = call.data
-    print('----type----', data['type'])
     await call.message.answer('Enter product name', reply_markup=kb.cancel)
+    await state.update_data(data)
     await state.set_state(NewOrder.name)
 
 
@@ -114,8 +110,8 @@ async def add_item_type(call: CallbackQuery, state: FSMContext):
 async def add_item_name(message: Message, state: FSMContext):
     data = await state.get_data()
     data['name'] = message.text
-    print('----name----', data['name'])
     await message.answer('Enter product description', reply_markup=kb.cancel)
+    await state.update_data(data)
     await state.set_state(NewOrder.desc)
 
 
@@ -123,8 +119,8 @@ async def add_item_name(message: Message, state: FSMContext):
 async def add_item_desc(message: Message, state: FSMContext):
     data = await state.get_data()
     data['desc'] = message.text
-    print('----desc----', data['desc'])
     await message.answer('Enter product price', reply_markup=kb.cancel)
+    await state.update_data(data)
     await state.set_state(NewOrder.price)
 
 
@@ -132,26 +128,18 @@ async def add_item_desc(message: Message, state: FSMContext):
 async def add_item_price(message: Message, state: FSMContext):
     data = await state.get_data()
     data['price'] = message.text
-    print('----price---', data['price'])
     await message.answer('Upload product photo', reply_markup=kb.cancel)
+    await state.update_data(data)
     await state.set_state(NewOrder.photo)
 
 
-@router.message(CommandFilter('/picture'))
+@router.message(CommandFilter('/photo'))
 async def handle_photo(message: Message, state: FSMContext):
-    photo = message.photo[-1]
-    await state.update_data({'photo': photo})
-    await message.answer('Photo received. Now please enter other product details.')
-
-
-@dp.callback_query(NewOrder.photo)
-async def add_item_photo(message: Message, state: FSMContext):
     data = await state.get_data()
     data['photo'] = message.photo[0].file_id
-    print('====data====', data)
-    print('----photo---', data['photo'])
+    await state.update_data(data)
     await db.add_item(state)
-    await message.answer('Goods added successfully', reply_markup=kb.kb_admin)
+    await message.answer('Product added successfully', reply_markup=kb.kb_admin)
     await state.clear()
 
 
