@@ -1,1 +1,6 @@
-https://youtube.com/playlist?list=PLV0FNhq3XMOK89Uu3yIEihN1KQ_LfXtjB
+Demo online store telegram bot
+
+Add:
+catalogue
+remove item
+mail campaign
