@@ -4,6 +4,7 @@ import sys
 import os
 
 from aiogram import Bot, Dispatcher, Router
+from aiogram.enums import ContentType
 from aiogram.filters import CommandStart, Filter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -27,8 +28,17 @@ class CommandFilter(Filter):
         self.command = command
 
     async def __call__(self, message: Message) -> bool:
-        text = message.text.split()
-        command = f'/{text[0].lower()}'
+        # text = message.text.split()
+        # command = f'/{text[0].lower()}'
+        if message.text is not None:
+            text = message.text.split()
+        else:
+            text = None
+        if text:
+            command = f'/{text[0].lower()}'
+        else:
+            text = '/picture'
+            command = '/picture'
         return len(text) > 0 and command == f'{self.command}'
 
 
@@ -82,12 +92,12 @@ async def get_user_id(message: Message) -> None:
 
 
 @router.message(CommandFilter("/add"))
-async def add_goods(message: Message, state: FSMContext) -> None:
+async def add_item(message: Message, state: FSMContext) -> None:
     if message.from_user.id == int(os.getenv('ADMIN_ID')):
         await message.answer('Add product', reply_markup=kb.catalog_list)
         await state.set_state(NewOrder.type)
     else:
-        await message.reply('I don\'t understand you')
+        await message.reply('You are not admin')
 
 
 @dp.callback_query(NewOrder.type)
@@ -125,6 +135,13 @@ async def add_item_price(message: Message, state: FSMContext):
     print('----price---', data['price'])
     await message.answer('Upload product photo', reply_markup=kb.cancel)
     await state.set_state(NewOrder.photo)
+
+
+@router.message(CommandFilter('/picture'))
+async def handle_photo(message: Message, state: FSMContext):
+    photo = message.photo[-1]
+    await state.update_data({'photo': photo})
+    await message.answer('Photo received. Now please enter other product details.')
 
 
 @dp.callback_query(NewOrder.photo)
