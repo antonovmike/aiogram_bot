@@ -24,8 +24,6 @@ class CommandFilter(Filter):
         self.command = command
 
     async def __call__(self, message: Message) -> bool:
-        # text = message.text.split()
-        # command = f'/{text[0].lower()}'
         if message.text is not None:
             text = message.text.split()
         else:

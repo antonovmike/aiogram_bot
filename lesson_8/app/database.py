@@ -33,7 +33,3 @@ async def add_item(state):
     cur.execute("INSERT INTO items (type, name, desc, price, photo) VALUES (?, ?, ?, ?, ?)",
                 (data['type'], data['name'], data['desc'], data['price'], data['photo']))
     db.commit()
-    # await with state.proxy() as data:
-    #     cur.execute("INSERT INTO items (name, desc, price, photo, brand) VALUES (?, ?, ?, ?, ?)",
-    #                 (data['name'], data['desc'], data['price'], data['photo'], data['type']))
-    #     db.commit()
