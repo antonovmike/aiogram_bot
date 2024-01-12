@@ -33,3 +33,9 @@ async def add_item(state):
     cur.execute("INSERT INTO items (type, name, desc, price, photo) VALUES (?, ?, ?, ?, ?)",
                 (data['type'], data['name'], data['desc'], data['price'], data['photo']))
     db.commit()
+
+
+async def get_items_of_type(type):
+    cur.execute("SELECT * FROM items WHERE type == ?", (type,))
+    rows = cur.fetchall()
+    return rows

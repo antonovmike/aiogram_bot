@@ -54,6 +54,19 @@ async def catalogue(message: Message) -> None:
     await message.answer(f'Here is our Catalogue', reply_markup=kb.catalog_list)
 
 
+@dp.callback_query()
+async def print_catalogue(call: CallbackQuery) -> None:
+    types = ['shirt', 't-shirt', 'sneakers']
+    for item_type in types:
+        if call.data == item_type and call.message.text == 'Here is our Catalogue':
+            items = await db.get_items_of_type(item_type)
+            for item in items:
+                i_id, item_type, name, desc, price, photo = item[0], item[1], item[2], item[3], item[4], item[5]
+                print(f"i_id: {i_id}, type: {item_type}, name: {name}, desc: {desc}, price: {price}, photo: {photo}")
+                await call.message.answer_photo(photo=photo)
+                await call.message.answer(f'{name}\n{desc}\nprice: {price}')
+
+
 @router.message(CommandFilter("/contacts"))
 async def contacts(message: Message) -> None:
     await message.answer(f'Buy here: @no_user')
