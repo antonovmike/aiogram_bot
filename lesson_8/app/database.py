@@ -35,7 +35,13 @@ async def add_item(state):
     db.commit()
 
 
-async def get_items_of_type(type):
-    cur.execute("SELECT * FROM items WHERE type == ?", (type,))
+async def get_items_of_type(item_type):
+    cur.execute("SELECT * FROM items WHERE type == ?", (item_type,))
+    rows = cur.fetchall()
+    return rows
+
+
+async def get_item_by_id(item_id):
+    cur.execute("SELECT * FROM items WHERE i_id == ?", (item_id,))
     rows = cur.fetchall()
     return rows

@@ -19,6 +19,9 @@ dp = Dispatcher(bot=bot, storage=storage)
 router = Router()
 
 
+ADMIN = int(os.getenv('ADMIN_ID'))
+
+
 class CommandFilter(Filter):
     def __init__(self, command: str) -> None:
         self.command = command
@@ -63,12 +66,12 @@ async def print_catalogue(call: CallbackQuery) -> None:
             for item in items:
                 i_id, item_type, name, desc, price, photo = item[0], item[1], item[2], item[3], item[4], item[5]
                 print(f"i_id: {i_id}, type: {item_type}, name: {name}, desc: {desc}, price: {price}, photo: {photo}")
-                # await call.message.answer_photo(photo=photo, caption=f'{name}\n{desc}\nprice: {price}')
                 inline_button_a = InlineKeyboardButton(text=name, callback_data=name)
                 inline_raw_a = [inline_button_a]
                 catalog_item = InlineKeyboardMarkup(inline_keyboard=[inline_raw_a])
                 await call.message.answer_photo(photo=photo, caption=f'{name}\n{desc}\nprice: {price}',
                                                 reply_markup=catalog_item)
+    # add button click
 
 
 @router.message(CommandFilter("/contacts"))
@@ -78,7 +81,7 @@ async def contacts(message: Message) -> None:
 
 @router.message(CommandFilter("/kbrd"))
 async def regular_kbrd(message: Message) -> None:
-    if check_admin(message):
+    if message.from_user.id == ADMIN:
         await message.answer(f'You have opened the regular keyboard', reply_markup=kb.kb_add)
     else:
         await message.answer(f'You have opened the regular keyboard', reply_markup=kb.kb_user)
@@ -86,15 +89,10 @@ async def regular_kbrd(message: Message) -> None:
 
 @router.message(CommandFilter("/admin"))
 async def admin_kbrd(message: Message) -> None:
-    if check_admin(message):
+    if message.from_user.id == ADMIN:
         await message.answer(f'You have opened the admin keyboard', reply_markup=kb.kb_admin)
     else:
         await message.answer("You are not administrator")
-
-
-def check_admin(message: Message) -> bool:
-    if message.from_user.id == int(os.getenv('ADMIN_ID')):
-        return True
 
 
 @router.message(CommandFilter("/id"))
@@ -104,7 +102,7 @@ async def get_user_id(message: Message) -> None:
 
 @router.message(CommandFilter("/add"))
 async def add_item(message: Message, state: FSMContext) -> None:
-    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+    if message.from_user.id == ADMIN:
         await message.answer('Add product', reply_markup=kb.catalog_list)
         await state.set_state(NewOrder.type)
     else:
@@ -160,7 +158,7 @@ async def handle_photo(message: Message, state: FSMContext):
 
 @router.message(CommandFilter("/delete"))
 async def delete_goods(message: Message, state: FSMContext) -> None:
-    if message.from_user.id == int(os.getenv('ADMIN_ID')):
+    if message.from_user.id == ADMIN:
         await state.set_state(NewOrder.type)
         await message.answer('Delete goods', reply_markup=kb.catalog_list)
     else:
