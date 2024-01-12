@@ -63,8 +63,7 @@ async def print_catalogue(call: CallbackQuery) -> None:
             for item in items:
                 i_id, item_type, name, desc, price, photo = item[0], item[1], item[2], item[3], item[4], item[5]
                 print(f"i_id: {i_id}, type: {item_type}, name: {name}, desc: {desc}, price: {price}, photo: {photo}")
-                await call.message.answer_photo(photo=photo)
-                await call.message.answer(f'{name}\n{desc}\nprice: {price}')
+                await call.message.answer_photo(photo=photo, caption=f'{name}\n{desc}\nprice: {price}')
 
 
 @router.message(CommandFilter("/contacts"))
